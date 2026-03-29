@@ -58,6 +58,14 @@ public:
 
     int getDenominator() const;
 
+    Rational& pow(int n);
+
+    double getSqrt() const;
+
+    Rational& sqrt();
+
+    bool isPositive() const;
+
     Rational& operator=(Rational& other);
 
     Rational& operator=(Rational&& other) noexcept;
