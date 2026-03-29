@@ -2,6 +2,7 @@
 #define RATIONAL_HPP
 
 #include <iosfwd>
+#include <stdexcept>
 
 class Rational {
 private:
@@ -11,6 +12,8 @@ private:
     void swap(Rational& other) noexcept;
 
     void reduct();
+    
+    friend std::istream& operator>>(std::istream& is, Rational& rational);
 
 public:
 
@@ -28,13 +31,16 @@ public:
 
     }
 
-    Rational(int numerator, int denominator_):
+    Rational(int numerator, int denominator):
         numerator_(numerator)
     {
-
+        if (denominator == 0) {
+            throw std::runtime_error("Division by zero");
+        }
+        denominator_ = denominator;
     }
 
-    Rational(Rational& other)
+    Rational(Rational& other):
         numerator_(other.numerator_),
         denominator_(other.denominator_)
     {
@@ -42,7 +48,7 @@ public:
     }
 
     Rational(Rational&& other) noexcept:
-        numerator_(other.numerator),
+        numerator_(other.numerator_),
         denominator_(other.denominator_)
     {
 
@@ -55,7 +61,6 @@ public:
     Rational& operator=(Rational& other);
 
     Rational& operator=(Rational&& other) noexcept;
-
 
     Rational& operator+=(const Rational& other);
 
@@ -85,11 +90,14 @@ public:
 
     bool operator>=(const Rational& other) const;
 
+    operator int() const;
+
     operator double() const;
 };
 
+std::istream& operator>>(std::istream& is, Rational& rational);
 
-std::ostream operator<<(std::ostream& os, const Rational& rational);
+std::ostream& operator<<(std::ostream& os, const Rational& rational);
 
 
 #endif

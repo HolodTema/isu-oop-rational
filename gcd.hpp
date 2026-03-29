@@ -2,6 +2,6 @@
 #define GCD_HPP
 
 //GCD - greatest common divisor
-int gcd(int a, int b);
+int getGCD(int a, int b);
 
 #endif

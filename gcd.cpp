@@ -1,17 +1,23 @@
 #include "gcd.hpp"
-#include <math>
 
 //gcc - greatest common divisor
 //difficulty is O(logN)
-int gcd(int a, int b) {
-    absA = std::abs(a);
-    absB = std::abs(b);
+int getGCD(int a, int b) {
+    int absA = a;
+    int absB = b;
 
-    while (b != 0) {
-        int temp = b;
-        b = a % b;
-        a = temp;
+    if (absA < 0) {
+        absA *= -1;
     }
-    return a;
+    if (absB < 0) {
+        absB *= -1;
+    }
+
+    while (absB != 0) {
+        int temp = absB;
+        b = absA % absB;
+        absA = temp;
+    }
+    return absA;
 }
 

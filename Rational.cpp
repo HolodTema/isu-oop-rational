@@ -3,13 +3,13 @@
 #include "gcd.hpp"
 
 
-void Rational::swap(Rational& other) {
+void Rational::swap(Rational& other) noexcept {
     std::swap(numerator_, other.numerator_);
     std::swap(denominator_, other.denominator_);
 }
 
 void Rational::reduct() {
-    int gcd = gcd(numerator_, denominator_);
+    int gcd = getGCD(numerator_, denominator_);
     numerator_ /= gcd;
     denominator_ /= gcd;
 }
@@ -30,51 +30,114 @@ Rational& Rational::operator=(Rational& other) {
     return *this;
 }
 
-Rational& operator=(Rational&& other) noexcept {
-    numerator_ = other.numerator_;
-    denominator_ = other.denominator_;
+Rational& Rational::operator=(Rational&& other) noexcept {
+    if (this != &other) {
+        numerator_ = other.numerator_;
+        denominator_ = other.denominator_;
+    }
+    return *this;
 }
 
 
-Rational& operator+=(const Rational& other) {
-
+Rational& Rational::operator+=(const Rational& other) {
+    numerator_ = (numerator_ * other.denominator_) + (other.numerator_ * denominator_);
+    denominator_ *= other.denominator_;
+    reduct();
+    return *this;
 }
 
-Rational operator+(const Rational& other) const {
-
+Rational Rational::operator+(const Rational& other) const {
+    Rational copy(*this);
+    return copy += other;
 }
 
-    Rational& operator-=(const Rational& other);
+Rational& Rational::operator-=(const Rational& other) {
+    numerator_ = (numerator_ * other.denominator_) - (other.numerator_ * denominator_);
+    denominator_ *= other.denominator_; 
+    reduct();
+    return *this;
+}
 
-    Rational operator-(const Rational& other) const;
+Rational Rational::operator-(const Rational& other) const {
+    Rational copy(*this);
+    return copy -= other;
+}
 
-    Rational& operator*=(const Rational& other);
+Rational& Rational::operator*=(const Rational& other) {
+    numerator_ *= other.numerator_;
+    denominator_ *= other.denominator_;
+    reduct();
+    return *this;
+}
+
+Rational Rational::operator*(const Rational& other) const {
+    Rational copy(*this);
+    return copy *= other;
+}
     
-    Rational operator*(const Rational& other) const;
+Rational& Rational::operator/=(const Rational& other) {
+    numerator_ *= other.denominator_;
+    denominator_ *= other.numerator_;
+    reduct();
+    return *this;
+}
 
-    Rational& operator/=(const Rational& other);
 
-    Rational operator/(const Rational& other) const;
+Rational Rational::operator/(const Rational& other) const {
+    Rational copy(*this);
+    return copy /= other;
+}
 
 bool Rational::operator==(const Rational& other) const {
     return numerator_ == other.numerator_ && 
         denominator_ == other.denominator_;
 }
 
-    bool Rational::operator!=(const Rational& other) const {
-        return !((*this) == other);
-    }
+bool Rational::operator!=(const Rational& other) const {
+    return !((*this) == other);
+}
 
-    bool operator<(const Rational& other) const;
-    
-    bool operator<=(const Rational& other) const;
+bool Rational::operator<(const Rational& other) const {
+    return (numerator_ * other.denominator_) < (other.numerator_ * denominator_);
+}
 
-    bool operator>(const Rational& other) const;
+bool Rational::operator<=(const Rational& other) const {
+    return ((*this) < other) || ((*this) == other);
+}
 
-    bool operator>=(const Rational& other) const;
+bool Rational::operator>(const Rational& other) const {
+    return (numerator_ * other.denominator_) > (other.numerator_ * denominator_);
+}
+
+bool Rational::operator>=(const Rational& other) const {
+    return ((*this) > other) || ((*this) == other);
+}
+
+Rational::operator int() const {
+    return numerator_ / denominator_;
+}
 
 Rational::operator double() const {
-    numeratorDouble = static_cast<double>(numerator_);
+    double numeratorDouble = static_cast<double>(numerator_);
     return numeratorDouble / denominator_;
 }
 
+std::istream& operator>>(std::istream& is, Rational& rational) {
+    std::istream::sentry s(is);
+    if (!s) {
+        return is;
+    }
+    is >> rational.numerator_;
+    is >> rational.denominator_;
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Rational& rational) {
+    std::ostream::sentry s(os);
+    if (!s) {
+        return os;
+    }
+    os << rational.getNumerator() << "/" << rational.getDenominator();
+    return os;
+}
+    
