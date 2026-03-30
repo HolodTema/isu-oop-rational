@@ -67,32 +67,59 @@ double Rational::getSqrt() const {
 }
 
 
-Rational& Rational::sqrt() {
-    constexpr int NUMERATOR_COEFF = 1000000;
-    constexpr int GERON_ITERATIONS_NUMBER = 10;
+Rational& Rational::sqrt(bool debugMode) {
+    constexpr int PRECISION = 10000;  
+    constexpr int ITERATIONS = 100;
 
     if (!isPositive()) {
         throw std::runtime_error("Unable to get square root from negative value");
     }
     
-    if (numerator_ > std::numeric_limits<int>::max() / NUMERATOR_COEFF) {
-        throw std::runtime_error("Integer max value overflow");
+    // sqrt(n/d) = sqrt(n*d) / d
+    //
+    // sqrt(n/d) = sqrt(n * d * PRECISION**2) / (d * PRECISION)
+    
+    long long llNumerator = static_cast<long long>(numerator_);
+    long long llDenominator = static_cast<long long>(denominator_);
+    
+    if (debugMode) {
+        std::cout << "sqrt() debug mode: sqrt(" << *this << "): \n";
+        std::cout << "llNumerator: " << llNumerator << "\n";
+        std::cout << "llDenominator: " << llDenominator << "\n";
+    }
+    
+    //n * d * PRECISION * PRECISION
+    long long bigNumerator = llNumerator * llDenominator * PRECISION * PRECISION;
+
+    if (debugMode) {
+        std::cout << "bigNumerator: " << bigNumerator << "\n";
+    }   
+    
+    // Geron method
+    // we need to find sqrt(bigNumerator) = sqrt(n * d * PRECISION**2)
+    long long newNumerator = bigNumerator;
+    for (int i = 0; i < ITERATIONS; ++i) {
+        newNumerator = (newNumerator + bigNumerator / newNumerator) / 2;
+    }
+    
+    // sqrt(n/d) = newNumerator / (d * PRECSION)
+    if (debugMode) {
+        std::cout << "newNumerator: " << newNumerator << "\n";
+        std::cout << "llDenominator * PRECISION: " << (llDenominator * PRECISION) << "\n";
     }
 
-    long long bigNumerator = static_cast<long long>(numerator_) * NUMERATOR_COEFF;
-    long long  resultNumerator = bigNumerator;
-
-    for (int i = 0; i < GERON_ITERATIONS_NUMBER; ++i) {
-        resultNumerator = (resultNumerator + bigNumerator / resultNumerator) / 2;
-    }
-
-    numerator_ = static_cast<int>(resultNumerator);
-    denominator_ = NUMERATOR_COEFF;
-
+    numerator_ = static_cast<int>(newNumerator);
+    denominator_ = static_cast<int>(llDenominator * PRECISION);
+    
     reduct();
+    
+    if (debugMode) {
+        std::cout << "Result: " << *this << "\n";
+        std::cout << "-----------\n";
+    }
+
     return *this;
 }
-
 
 bool Rational::isPositive() const {
     return (numerator_ > 0 && denominator_ > 0) || (numerator_ < 0 && denominator_ < 0);

@@ -3,9 +3,22 @@
 #include <iostream>
 
 
-void quadraticEquation(std::ostream& os, const Rational& a, const Rational& b, const Rational& c) {
+void quadraticEquation(
+    std::ostream& os, 
+    const Rational& a, 
+    const Rational& b, 
+    const Rational& c, 
+    bool debugMode
+) {
     Rational discr = (b * b) - (Rational(4) * a * c);
-    os << discr << "\n";
+
+    if (debugMode) {
+        os << "Quadratic equation solving: \n";
+        os << "a = " << a << "\n";
+        os << "b = " << b << "\n";
+        os << "c = " << c << "\n";
+        os << "D = " << discr << "\n";
+    }
 
     if (discr < Rational(0)) {
         os << "Equation has no roots.\n";
@@ -18,13 +31,23 @@ void quadraticEquation(std::ostream& os, const Rational& a, const Rational& b, c
         os << root << "\n";
         return;
     }
-
-    Rational root1 = ((b * Rational(-1)) + discr.sqrt()) / (Rational(2) * a * c);
     
-    Rational root2 = ((b * Rational(-1)) - discr.sqrt()) / (Rational(2) * a * c);
+    if (debugMode) {
+        std::cout << "-b = " << (b * Rational(-1)) << "\n";
+        std::cout << "-b + sqrt(D) = " << ((b * Rational(-1)) + discr.sqrt(false)) << "\n";
+        std::cout << "2*a = " << (Rational(2) * a) << "\n";
+    }
+
+    Rational root1 = ((b * Rational(-1)) + discr.sqrt(false)) / (Rational(2) * a);
+    
+    Rational root2 = ((b * Rational(-1)) - discr.sqrt(false)) / (Rational(2) * a);
 
     os << "Equation has two roots:\n";
     os << "Root1: " << root1 << "\n";
     os << "Root2: " << root2 << "\n";
+
+    if (debugMode) {
+        os << "---------------------\n";
+    }
 }
 

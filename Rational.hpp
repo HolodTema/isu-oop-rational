@@ -62,7 +62,7 @@ public:
 
     double getSqrt() const;
 
-    Rational& sqrt();
+    Rational& sqrt(bool debugMode);
 
     bool isPositive() const;
 
