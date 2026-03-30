@@ -40,7 +40,7 @@ public:
         denominator_ = denominator;
     }
 
-    Rational(Rational& other):
+    Rational(const Rational& other):
         numerator_(other.numerator_),
         denominator_(other.denominator_)
     {
@@ -66,7 +66,7 @@ public:
 
     bool isPositive() const;
 
-    Rational& operator=(Rational& other);
+    Rational& operator=(const Rational& other);
 
     Rational& operator=(Rational&& other) noexcept;
 

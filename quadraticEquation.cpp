@@ -5,6 +5,7 @@
 
 void quadraticEquation(std::ostream& os, const Rational& a, const Rational& b, const Rational& c) {
     Rational discr = (b * b) - (Rational(4) * a * c);
+    os << discr << "\n";
 
     if (discr < Rational(0)) {
         os << "Equation has no roots.\n";
@@ -18,9 +19,9 @@ void quadraticEquation(std::ostream& os, const Rational& a, const Rational& b, c
         return;
     }
 
-    Rational root1 = ((b * Rational(-1)) + discr.sqrt()) / (Rational(4) * a * c);
+    Rational root1 = ((b * Rational(-1)) + discr.sqrt()) / (Rational(2) * a * c);
     
-    Rational root2 = ((b * Rational(-1)) - discr.sqrt()) / (Rational(4) * a * c);
+    Rational root2 = ((b * Rational(-1)) - discr.sqrt()) / (Rational(2) * a * c);
 
     os << "Equation has two roots:\n";
     os << "Root1: " << root1 << "\n";

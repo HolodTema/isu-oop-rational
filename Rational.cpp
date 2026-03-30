@@ -97,7 +97,7 @@ bool Rational::isPositive() const {
     return (numerator_ > 0 && denominator_ > 0) || (numerator_ < 0 && denominator_ < 0);
 }
 
-Rational& Rational::operator=(Rational& other) {
+Rational& Rational::operator=(const Rational& other) {
     if (this != &other) {
         Rational otherCopy = Rational(other);
         swap(otherCopy);

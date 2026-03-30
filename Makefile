@@ -3,7 +3,7 @@ CXX = g++
 
 
 # compiler flags
-# CXXFLAGS = -std=c++11
+# CXXFLAGS = -Wall -Wextra -std=c++11 -O2
 
 
 # target file - the file of our program
@@ -11,7 +11,7 @@ TARGET = main
 
 
 # source c++ files
-SOURCES = main.cpp Rational.hpp Rational.cpp gcd.cpp gcd.hpp quadraticEquation.cpp quadraticEquation.hpp
+SOURCES = main.cpp Rational.cpp gcd.cpp quadraticEquation.cpp 
 
 
 # default makefile rule

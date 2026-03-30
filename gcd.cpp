@@ -15,7 +15,7 @@ int getGCD(int a, int b) {
 
     while (absB != 0) {
         int temp = absB;
-        b = absA % absB;
+        absB = absA % absB;
         absA = temp;
     }
     return absA;
