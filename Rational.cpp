@@ -230,8 +230,20 @@ std::istream& operator>>(std::istream& is, Rational& rational) {
     if (!s) {
         return is;
     }
-    is >> rational.numerator_;
-    is >> rational.denominator_;
+    
+
+    int denominator = 0;
+    int numerator = 0;
+
+    is >> numerator;
+    is >> denominator;
+
+    if (denominator == 0) {
+        throw std::runtime_error("Division by zero");
+    } 
+
+    rational.numerator_ = numerator;
+    rational.denominator_ = denominator;
     return is;
 }
 
