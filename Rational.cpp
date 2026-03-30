@@ -30,25 +30,25 @@ Rational& Rational::pow(int n) {
         return *this;
     }
 
-    if (n < 0) {
-        if (numerator_ == 0) {
-            throw std::runtime_error("Division by zero");
+    bool negativePower = (n < 0);
+    int absN = (n < 0) ? -n : n;
+    
+    Rational result(1, 1);
+    Rational base = *this;
+    
+    for (int i = 0; i < absN; ++i) {
+        result *= base;
+    }
+    
+    // if pow is negative, we swap numerator and denominator
+    if (negativePower) {
+        if (result.numerator_ == 0) {
+            throw std::runtime_error("Division by zero in negative power");
         }
-        std::swap(numerator_, denominator_);
+        std::swap(result.numerator_, result.denominator_);
     }
-
-    int absN = n;
-    if (absN < 0) {
-        absN *= -1;
-    }
-
-    for (int i = 0; i < (absN-1); ++i) {
-        if ((numerator_ > (std::numeric_limits<int>::max() / numerator_)) || (denominator_ > (std::numeric_limits<int>::max() / denominator_))) {
-            throw std::runtime_error("Integer max value overflow");
-        }
-        
-        (*this) *= (*this);
-    }
+    
+    *this = result;
     return *this;
 }
 
@@ -59,7 +59,7 @@ double Rational::getSqrt() const {
         throw std::runtime_error("Unable to get square root from negative value");
     }
 
-    double result = 0;
+    double result = rationalDouble;
     for (int i = 0; i < 10; ++i) {
         result = 0.5 * (result + rationalDouble / result);
     }
@@ -68,8 +68,8 @@ double Rational::getSqrt() const {
 
 
 Rational& Rational::sqrt() {
-    constexpr int NUMERATOR_COEFF = 10000;
-    constexpr int GERON_ITERATIONS_NUMBER = 5;
+    constexpr int NUMERATOR_COEFF = 1000000;
+    constexpr int GERON_ITERATIONS_NUMBER = 10;
 
     if (!isPositive()) {
         throw std::runtime_error("Unable to get square root from negative value");
@@ -79,13 +79,14 @@ Rational& Rational::sqrt() {
         throw std::runtime_error("Integer max value overflow");
     }
 
-    int bigNumerator = numerator_ * NUMERATOR_COEFF;
-    int resultNumerator = bigNumerator;
+    long long bigNumerator = static_cast<long long>(numerator_) * NUMERATOR_COEFF;
+    long long  resultNumerator = bigNumerator;
+
     for (int i = 0; i < GERON_ITERATIONS_NUMBER; ++i) {
         resultNumerator = (resultNumerator + bigNumerator / resultNumerator) / 2;
     }
 
-    numerator_ = resultNumerator;
+    numerator_ = static_cast<int>(resultNumerator);
     denominator_ = NUMERATOR_COEFF;
 
     reduct();
