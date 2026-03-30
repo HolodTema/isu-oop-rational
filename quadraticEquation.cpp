@@ -32,15 +32,23 @@ void quadraticEquation(
         return;
     }
     
+    Rational rootDenom = Rational(2) * a;
+    rootDenom.reduct();
+
+    Rational discrSqrt = discr.sqrt(false);
+
+    Rational numeratorRoot1 = (b * Rational(-1)) + discrSqrt;
+
+    Rational numeratorRoot2 = (b * Rational(-1)) - discrSqrt;
+
     if (debugMode) {
         std::cout << "-b = " << (b * Rational(-1)) << "\n";
-        std::cout << "-b + sqrt(D) = " << ((b * Rational(-1)) + discr.sqrt(false)) << "\n";
-        std::cout << "2*a = " << (Rational(2) * a) << "\n";
+        std::cout << "-b + sqrt(D) = " << numeratorRoot1 << "\n";
+        std::cout << "2*a = " << rootDenom << "\n";
     }
-
-    Rational root1 = ((b * Rational(-1)) + discr.sqrt(false)) / (Rational(2) * a);
     
-    Rational root2 = ((b * Rational(-1)) - discr.sqrt(false)) / (Rational(2) * a);
+    Rational root1 = numeratorRoot1 / rootDenom;
+    Rational root2 = numeratorRoot2 / rootDenom;
 
     os << "Equation has two roots:\n";
     os << "Root1: " << root1 << "\n";

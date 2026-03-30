@@ -11,7 +11,6 @@ private:
 
     void swap(Rational& other) noexcept;
 
-    void reduct();
     
     friend std::istream& operator>>(std::istream& is, Rational& rational);
 
@@ -53,6 +52,8 @@ public:
     {
 
     }
+
+    void reduct();
 
     int getNumerator() const;
 
