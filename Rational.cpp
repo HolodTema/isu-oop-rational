@@ -59,6 +59,10 @@ double Rational::getSqrt() const {
         throw std::runtime_error("Unable to get square root from negative value");
     }
 
+    if (rationalDouble == 0) {
+        return 0;
+    }
+
     double result = rationalDouble;
     for (int i = 0; i < 10; ++i) {
         result = 0.5 * (result + rationalDouble / result);
