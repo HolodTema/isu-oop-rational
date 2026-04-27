@@ -23,7 +23,7 @@ public:
 
     }
 
-    Rational(int numerator):
+    explicit Rational(int numerator):
         numerator_(numerator),
         denominator_(1)
     {
@@ -66,6 +66,8 @@ public:
     Rational& sqrt(bool debugMode);
 
     bool isPositive() const;
+
+    bool isNotNegative() const;
 
     Rational& operator=(const Rational& other);
 

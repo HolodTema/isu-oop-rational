@@ -71,8 +71,16 @@ Rational& Rational::sqrt(bool debugMode) {
     constexpr int PRECISION = 10000;  
     constexpr int ITERATIONS = 100;
 
-    if (!isPositive()) {
+    if (!isNotNegative()) {
         throw std::runtime_error("Unable to get square root from negative value");
+    }
+
+    if (numerator_ == 0) {
+        if (debugMode) {
+            std::cout << "Handling special case when numerator_ = 0. sqrt(0) = 0\n";
+            denominator_ = 1;
+            return *this;
+        }
     }
     
     // sqrt(n/d) = sqrt(n*d) / d
@@ -124,6 +132,11 @@ Rational& Rational::sqrt(bool debugMode) {
 bool Rational::isPositive() const {
     return (numerator_ > 0 && denominator_ > 0) || (numerator_ < 0 && denominator_ < 0);
 }
+
+bool Rational::isNotNegative() const {
+    return (numerator_ >= 0 && denominator_ > 0) || (numerator_ <= 0 && denominator_ < 0);
+}
+
 
 Rational& Rational::operator=(const Rational& other) {
     if (this != &other) {
