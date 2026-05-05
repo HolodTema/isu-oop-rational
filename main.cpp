@@ -132,11 +132,11 @@ void testEquationCLI() {
 
 
 int main() {
-    // testSqrt();
+    testSqrt();
 
     // testEquation1();
     
-    testEquationCLI();
+    // testEquationCLI();
 
     return 0;
 }

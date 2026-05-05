@@ -117,21 +117,35 @@ Rational& Rational::sqrt(bool debugMode) {
 
     long long bigNumerator = numerator_ * denominator_;
 
-    if (std::numeric_limits<long long>::max() / SCALE < SCALE) {
-        if (debugMode) {
-            std::cout << "SCALE * SCALE affects long long overflow\n";
+    long long scale = 1;
+    while (true) {
+        if ((std::numeric_limits<long long>::max() / scale < scale) ||
+            (std::numeric_limits<long long>::max() / scale < absDenominator) ||
+            (std::numeric_limits<long long>::max() / (scale * scale) < bigNumerator)) {
+            scale /= 10;
+            break;
         }
-        throw LongLongOverflowException();
+        scale *= 10;
     }
-    if ((std::numeric_limits<long long>::max() / bigNumerator) < (SCALE * SCALE)) {
-        if (debugMode) {
-            std::cout << "numerator * denominator * SCALE * SCALE affects long long overflow\n";
-        }
-        throw LongLongOverflowException();
-    }
-    bigNumerator *= SCALE * SCALE;
+
+    bigNumerator *= (scale * scale);
+
+    // if (std::numeric_limits<long long>::max() / SCALE < SCALE) {
+    //     if (debugMode) {
+    //         std::cout << "SCALE * SCALE affects long long overflow\n";
+    //     }
+    //     throw LongLongOverflowException();
+    // }
+    // if ((std::numeric_limits<long long>::max() / bigNumerator) < (SCALE * SCALE)) {
+    //     if (debugMode) {
+    //         std::cout << "numerator * denominator * SCALE * SCALE affects long long overflow\n";
+    //     }
+    //     throw LongLongOverflowException();
+    // }
+    // bigNumerator *= SCALE * SCALE;
 
     if (debugMode) {
+        std::cout << "scale = " << scale << "\n";
         std::cout << "bigNumerator = " << bigNumerator << "\n";
     }
 
@@ -149,14 +163,14 @@ Rational& Rational::sqrt(bool debugMode) {
     }
     long long bigNumeratorSqrt = entryN;
 
-    if (std::numeric_limits<long long>::max() / absDenominator < SCALE) {
-        if (debugMode) {
-            std::cout << "denominator * SCALE causes long long overflow\n";
-        }
-        throw LongLongOverflowException();
-    }
+    // if (std::numeric_limits<long long>::max() / absDenominator < SCALE) {
+    //     if (debugMode) {
+    //         std::cout << "denominator * SCALE causes long long overflow\n";
+    //     }
+    //     throw LongLongOverflowException();
+    // }
     numerator_ = bigNumeratorSqrt;
-    denominator_ *= SCALE;
+    denominator_ *= scale;
     reduct();
     if (debugMode) {
         std::cout << "Result of sqrt():\n";
