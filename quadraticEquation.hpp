@@ -9,7 +9,7 @@ void quadraticEquation(
     const Rational& a, 
     const Rational& b, 
     const Rational& c,
-    bool debugMlde
+    bool debugMode
 );
 
 #endif

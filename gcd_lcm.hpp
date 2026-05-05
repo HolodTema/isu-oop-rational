@@ -2,8 +2,10 @@
 #define GCD_HPP
 
 //GCD - greatest common divisor
-int getGCD(int a, int b);
+long long getGCD(long long a, long long b);
 
-int getLCM(int a, int b);
+long long getLCM(long long a, long long b);
+
+long long getLCM(long long a, long long b, long long gcd);
 
 #endif

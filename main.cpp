@@ -93,38 +93,6 @@ void testSqrt() {
     r30.sqrt(true);
 }
 
-void testNewSqrt() {
-    Rational r1(16);
-    r1.newSqrt();
-
-    Rational r2(10000);
-    r2.newSqrt();
-
-    Rational r3(625);
-    r3.newSqrt();
-
-    Rational r4(1);
-    r4.newSqrt();
-
-    Rational r5(5);
-    r5.newSqrt();
-
-    Rational r6(0);
-    r6.newSqrt();
-
-    Rational r7(49);
-    r7.newSqrt();
-
-    Rational r8(144);
-    r8.newSqrt();
-
-    Rational r9(1000000);
-    r9.newSqrt();
-
-    Rational r10(2);
-    r10.newSqrt();
-}
-
 void testEquation1() {
     Rational a(2);
     Rational b(-5);
@@ -164,9 +132,9 @@ void testEquationCLI() {
 
 
 int main() {
-    // testNewSqrt();
+    // testSqrt();
 
-    //testEquation1();
+    // testEquation1();
     
     testEquationCLI();
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <limits>
 #include "gcd_lcm.hpp"
+#include "exceptions.hpp"
 
 
 void Rational::swap(Rational& other) noexcept {
@@ -10,16 +11,25 @@ void Rational::swap(Rational& other) noexcept {
 }
 
 void Rational::reduct() {
-    int gcd = getGCD(numerator_, denominator_);
+    long long gcd = getGCD(numerator_, denominator_);
+    numerator_ /= gcd;
+    denominator_ /= gcd;
+    if (numerator_ < 0 && denominator_ < 0) {
+        numerator_ *= -1;
+        denominator_ *= -1;
+    }
+}
+
+void Rational::reduct(long long gcd) {
     numerator_ /= gcd;
     denominator_ /= gcd;
 }
 
-int Rational::getNumerator() const {
+long long Rational::getNumerator() const {
     return numerator_;
 }
 
-int Rational::getDenominator() const {
+long long Rational::getDenominator() const {
     return denominator_;
 }
 
@@ -30,20 +40,22 @@ Rational& Rational::pow(int n) {
         return *this;
     }
 
-    bool negativePower = (n < 0);
-    int absN = (n < 0) ? -n : n;
+    bool isNegativePower = n < 0;
+    if (n < 0) {
+        n *= -1;
+    }
     
-    Rational result(1, 1);
+    Rational result(1ll, 1ll);
     Rational base = *this;
     
-    for (int i = 0; i < absN; ++i) {
+    for (int i = 0; i < n; ++i) {
         result *= base;
     }
     
     // if pow is negative, we swap numerator and denominator
-    if (negativePower) {
-        if (result.numerator_ == 0) {
-            throw std::runtime_error("Division by zero in negative power");
+    if (isNegativePower) {
+        if (result.numerator_ == 0ll) {
+            throw DivisionByZeroException();
         }
         std::swap(result.numerator_, result.denominator_);
     }
@@ -70,106 +82,97 @@ double Rational::getSqrt() const {
     return result;
 }
 
-
 Rational& Rational::sqrt(bool debugMode) {
-    constexpr int PRECISION = 10000;  
-    constexpr int ITERATIONS = 1000;
+    constexpr long long SCALE = 10000ll;
 
-    if (!isNotNegative()) {
-        throw std::runtime_error("Unable to get square root from negative value");
+    if (debugMode) {
+        std::cout << "Calculating sqrt() from rational " << *this << "\n";
+        std::cout << "SCALE = " << SCALE << "\n";
     }
 
-    if (numerator_ == 0) {
+    if (!isNotNegative()) {
         if (debugMode) {
-            std::cout << "Handling special case when numerator_ = 0. sqrt(0) = 0\n";
-            denominator_ = 1;
-            return *this;
+            std::cout << "sqrt() cannot be assigned to negative number.\n";
         }
-    }
-    
-    // sqrt(n/d) = sqrt(n*d) / d
-    //
-    // sqrt(n/d) = sqrt(n * d * PRECISION**2) / (d * PRECISION)
-    
-    long long llNumerator = static_cast<long long>(numerator_);
-    long long llDenominator = static_cast<long long>(denominator_);
-    
-    if (debugMode) {
-        std::cout << "sqrt() debug mode: sqrt(" << *this << "): \n";
-        std::cout << "llNumerator: " << llNumerator << "\n";
-        std::cout << "llDenominator: " << llDenominator << "\n";
-    }
-    
-    if (std::numeric_limits<long long>::max() / llDenominator > llDenominator) {
-        return newSqrt();
+        throw NegativeSquareRootException();
     }
 
-    //n * d * PRECISION * PRECISION
-    long long bigNumerator = llNumerator * llDenominator * PRECISION * PRECISION;
-
-    if (debugMode) {
-        std::cout << "bigNumerator: " << bigNumerator << "\n";
-    }   
-    
-    // Geron method
-    // we need to find sqrt(bigNumerator) = sqrt(n * d * PRECISION**2)
-    long long newNumerator = bigNumerator;
-    for (int i = 0; i < ITERATIONS; ++i) {
-        newNumerator = (newNumerator + bigNumerator / newNumerator) / 2;
-    }
-    
-    // sqrt(n/d) = newNumerator / (d * PRECSION)
-    if (debugMode) {
-        std::cout << "newNumerator: " << newNumerator << "\n";
-        std::cout << "llDenominator * PRECISION: " << (llDenominator * PRECISION) << "\n";
-    }
-
-    numerator_ = static_cast<int>(newNumerator);
-    denominator_ = static_cast<int>(llDenominator * PRECISION);
-    
-    reduct();
-    
-    if (debugMode) {
-        std::cout << "Result: " << *this << "\n";
-        std::cout << "-----------\n";
-    }
-
-    return *this;
-}
-
-Rational& Rational::newSqrt() {
-    if (!isNotNegative()) {
-        throw std::runtime_error("Unable to get square root from negative value");
-    }
-    if (numerator_ == 0) {
-        denominator_ = 1;
+    if (numerator_ == 0ll) {
+        if (debugMode) {
+            std::cout << "Handling special case when numerator = 0. sqrt(0) = 0\n";
+            std::cout << "--------------\n\n";
+        }
+        denominator_ = 1ll;
         return *this;
     }
 
-    int newNumerator = numerator_;
-    for (int i = 0; i < 100; ++i) {
-        newNumerator = (newNumerator + numerator_ / newNumerator) / 2;
+    long long absNumerator = numerator_ < 0 ? -numerator_ : numerator_;
+    long long absDenominator = denominator_ < 0 ? -denominator_ : denominator_;
+    if (std::numeric_limits<long long>::max() / absNumerator < absDenominator) {
+        if (debugMode) {
+            std::cout << "numerator * denominator affects long long overflow\n";
+        }
+        throw LongLongOverflowException();
     }
 
-    int newDenominator = denominator_;
-    for (int i = 0; i < 100; ++i) {
-        newDenominator = (newDenominator + denominator_ / newDenominator) / 2;
+    long long bigNumerator = numerator_ * denominator_;
+
+    if (std::numeric_limits<long long>::max() / SCALE < SCALE) {
+        if (debugMode) {
+            std::cout << "SCALE * SCALE affects long long overflow\n";
+        }
+        throw LongLongOverflowException();
+    }
+    if ((std::numeric_limits<long long>::max() / bigNumerator) < (SCALE * SCALE)) {
+        if (debugMode) {
+            std::cout << "numerator * denominator * SCALE * SCALE affects long long overflow\n";
+        }
+        throw LongLongOverflowException();
+    }
+    bigNumerator *= SCALE * SCALE;
+
+    if (debugMode) {
+        std::cout << "bigNumerator = " << bigNumerator << "\n";
     }
 
-    numerator_ = newNumerator;
-    denominator_ = newDenominator;
+    if (std::numeric_limits<long long>::max() - 1 < bigNumerator) {
+        if (debugMode) {
+            std::cout << "bigNumerator + 1 affects long long overflow\n";
+        }
+        throw LongLongOverflowException();
+    }
+    long long entryN = bigNumerator;
+    long long entryNPlusOne = (entryN + 1) / 2;
+    while (entryNPlusOne < entryN) {
+        entryN = entryNPlusOne;
+        entryNPlusOne = (entryN + bigNumerator / entryN) / 2;
+    }
+    long long bigNumeratorSqrt = entryN;
+
+    if (std::numeric_limits<long long>::max() / absDenominator < SCALE) {
+        if (debugMode) {
+            std::cout << "denominator * SCALE causes long long overflow\n";
+        }
+        throw LongLongOverflowException();
+    }
+    numerator_ = bigNumeratorSqrt;
+    denominator_ *= SCALE;
     reduct();
+    if (debugMode) {
+        std::cout << "Result of sqrt():\n";
+        std::cout << *this << "\n";
+        std::cout << "--------------\n\n";
+    }
     return *this;
 }
 
 bool Rational::isPositive() const {
-    return (numerator_ > 0 && denominator_ > 0) || (numerator_ < 0 && denominator_ < 0);
+    return (numerator_ > 0ll && denominator_ > 0ll) || (numerator_ < 0ll && denominator_ < 0ll);
 }
 
 bool Rational::isNotNegative() const {
-    return (numerator_ >= 0 && denominator_ > 0) || (numerator_ <= 0 && denominator_ < 0);
+    return (numerator_ >= 0ll && denominator_ > 0ll) || (numerator_ <= 0ll && denominator_ < 0ll);
 }
-
 
 Rational& Rational::operator=(const Rational& other) {
     if (this != &other) {
@@ -189,9 +192,20 @@ Rational& Rational::operator=(Rational&& other) noexcept {
 
 
 Rational& Rational::operator+=(const Rational& other) {
-    int lcm = getLCM(denominator_, other.denominator_);
-    int firstMultiplier = lcm / denominator_;
-    int secondMultiplier = lcm / other.denominator_;
+    long long lcm = getLCM(denominator_, other.denominator_);
+    long long firstMultiplier = lcm / denominator_;
+    long long secondMultiplier = lcm / other.denominator_;
+
+    long long absNumerator = numerator_ < 0 ? -numerator_ : numerator_;
+    long long absOtherNumerator = other.numerator_ < 0 ? -other.numerator_ : other.numerator_;
+    long long absFirstMultiplier = firstMultiplier < 0 ? -firstMultiplier : firstMultiplier;
+    long long absSecondMultiplier = secondMultiplier < 0 ? -secondMultiplier : secondMultiplier;
+    if ((std::numeric_limits<long long>::max() / absNumerator < absFirstMultiplier) ||
+        (std::numeric_limits<long long>::max() / absOtherNumerator < absSecondMultiplier) ||
+        (std::numeric_limits<long long>::max() - (absNumerator * absFirstMultiplier) < (absOtherNumerator * absSecondMultiplier))) {
+        throw LongLongOverflowException();
+    }
+
     numerator_ = (numerator_ * firstMultiplier) + (other.numerator_ * secondMultiplier);
     denominator_ = lcm;
     reduct();
@@ -204,9 +218,20 @@ Rational Rational::operator+(const Rational& other) const {
 }
 
 Rational& Rational::operator-=(const Rational& other) {
-    int lcm = getLCM(denominator_, other.denominator_);
-    int firstMultiplier = lcm / denominator_;
-    int secondMultiplier = lcm / other.denominator_;
+    long long lcm = getLCM(denominator_, other.denominator_);
+    long long firstMultiplier = lcm / denominator_;
+    long long secondMultiplier = lcm / other.denominator_;
+
+    long long absNumerator = numerator_ < 0 ? -numerator_ : numerator_;
+    long long absOtherNumerator = other.numerator_ < 0 ? -other.numerator_ : other.numerator_;
+    long long absFirstMultiplier = firstMultiplier < 0 ? -firstMultiplier : firstMultiplier;
+    long long absSecondMultiplier = secondMultiplier < 0 ? -secondMultiplier : secondMultiplier;
+    if ((std::numeric_limits<long long>::max() / absNumerator < absFirstMultiplier) ||
+        (std::numeric_limits<long long>::max() / absOtherNumerator < absSecondMultiplier) ||
+        (std::numeric_limits<long long>::max() - (absNumerator * absFirstMultiplier) < (absOtherNumerator * absSecondMultiplier))) {
+        throw LongLongOverflowException();
+    }
+
     numerator_ = (numerator_ * firstMultiplier) - (other.numerator_ * secondMultiplier);
     denominator_ = lcm;
     reduct();
@@ -219,6 +244,16 @@ Rational Rational::operator-(const Rational& other) const {
 }
 
 Rational& Rational::operator*=(const Rational& other) {
+    long long absNumerator = numerator_ < 0 ? -numerator_ : numerator_;
+    long long absOtherNumerator = other.numerator_ < 0 ? -other.numerator_ : other.numerator_;
+    long long absDenominator = denominator_ < 0 ? -denominator_ : denominator_;
+    long long absOtherDenominator = other.denominator_ < 0 ? -other.denominator_ : other.denominator_;
+
+    if ((std::numeric_limits<long long>::max() / absNumerator < absOtherNumerator) ||
+        (std::numeric_limits<long long>::max() / absDenominator < absOtherDenominator)) {
+        throw LongLongOverflowException();
+    }
+
     numerator_ *= other.numerator_;
     denominator_ *= other.denominator_;
     reduct();
@@ -231,6 +266,16 @@ Rational Rational::operator*(const Rational& other) const {
 }
     
 Rational& Rational::operator/=(const Rational& other) {
+    long long absNumerator = numerator_ < 0 ? -numerator_ : numerator_;
+    long long absOtherNumerator = other.numerator_ < 0 ? -other.numerator_ : other.numerator_;
+    long long absDenominator = denominator_ < 0 ? -denominator_ : denominator_;
+    long long absOtherDenominator = other.denominator_ < 0 ? -other.denominator_ : other.denominator_;
+
+    if ((std::numeric_limits<long long>::max() / absNumerator < absOtherDenominator) ||
+        (std::numeric_limits<long long>::max() / absDenominator < absOtherNumerator)) {
+        throw LongLongOverflowException();
+    }
+
     numerator_ *= other.denominator_;
     denominator_ *= other.numerator_;
     reduct();
@@ -268,12 +313,16 @@ bool Rational::operator>=(const Rational& other) const {
 }
 
 Rational::operator int() const {
-    return numerator_ / denominator_;
+    return static_cast<int>(numerator_ / denominator_);
 }
 
 Rational::operator double() const {
     double numeratorDouble = static_cast<double>(numerator_);
     return numeratorDouble / denominator_;
+}
+
+Rational::operator long long() const {
+    return numerator_ / denominator_;
 }
 
 std::istream& operator>>(std::istream& is, Rational& rational) {

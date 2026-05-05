@@ -2,12 +2,12 @@
 #define RATIONAL_HPP
 
 #include <iosfwd>
-#include <stdexcept>
+#include "exceptions.hpp"
 
 class Rational {
 private:
-    int numerator_;
-    int denominator_;
+    long long numerator_;
+    long long denominator_;
 
     void swap(Rational& other) noexcept;
 
@@ -17,24 +17,24 @@ private:
 public:
 
     Rational():
-        numerator_(0),
-        denominator_(1)
+        numerator_(0ll),
+        denominator_(1ll)
     {
 
     }
 
-    explicit Rational(int numerator):
+    explicit Rational(long long numerator):
         numerator_(numerator),
-        denominator_(1)
+        denominator_(1ll)
     {
 
     }
 
-    Rational(int numerator, int denominator):
+    Rational(long long numerator, long long denominator):
         numerator_(numerator)
     {
         if (denominator == 0) {
-            throw std::runtime_error("Division by zero");
+            throw DivisionByZeroException();
         }
         denominator_ = denominator;
     }
@@ -55,17 +55,17 @@ public:
 
     void reduct();
 
-    int getNumerator() const;
+    void reduct(long long gcd);
 
-    int getDenominator() const;
+    long long getNumerator() const;
+
+    long long getDenominator() const;
 
     Rational& pow(int n);
 
     double getSqrt() const;
 
     Rational& sqrt(bool debugMode);
-
-    Rational& newSqrt();
 
     bool isPositive() const;
 
@@ -104,6 +104,8 @@ public:
     bool operator>=(const Rational& other) const;
 
     operator int() const;
+
+    operator long long() const;
 
     operator double() const;
 };
