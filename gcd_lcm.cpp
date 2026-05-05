@@ -1,4 +1,4 @@
-#include "gcd.hpp"
+#include "gcd_lcm.hpp"
 
 //gcc - greatest common divisor
 //difficulty is O(logN)
@@ -21,3 +21,9 @@ int getGCD(int a, int b) {
     return absA;
 }
 
+int getLCM(int a, int b) {
+    int gcd = getGCD(a, b);
+    int result = a / gcd;
+    result *= b;
+    return result;
+}

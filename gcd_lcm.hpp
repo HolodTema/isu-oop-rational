@@ -4,4 +4,6 @@
 //GCD - greatest common divisor
 int getGCD(int a, int b);
 
+int getLCM(int a, int b);
+
 #endif

@@ -65,6 +65,8 @@ public:
 
     Rational& sqrt(bool debugMode);
 
+    Rational& newSqrt();
+
     bool isPositive() const;
 
     bool isNotNegative() const;

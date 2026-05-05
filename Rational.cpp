@@ -1,7 +1,7 @@
 #include "Rational.hpp"
 #include <iostream>
 #include <limits>
-#include "gcd.hpp"
+#include "gcd_lcm.hpp"
 
 
 void Rational::swap(Rational& other) noexcept {
@@ -73,7 +73,7 @@ double Rational::getSqrt() const {
 
 Rational& Rational::sqrt(bool debugMode) {
     constexpr int PRECISION = 10000;  
-    constexpr int ITERATIONS = 100;
+    constexpr int ITERATIONS = 1000;
 
     if (!isNotNegative()) {
         throw std::runtime_error("Unable to get square root from negative value");
@@ -100,6 +100,10 @@ Rational& Rational::sqrt(bool debugMode) {
         std::cout << "llDenominator: " << llDenominator << "\n";
     }
     
+    if (std::numeric_limits<long long>::max() / llDenominator > llDenominator) {
+        return newSqrt();
+    }
+
     //n * d * PRECISION * PRECISION
     long long bigNumerator = llNumerator * llDenominator * PRECISION * PRECISION;
 
@@ -133,6 +137,31 @@ Rational& Rational::sqrt(bool debugMode) {
     return *this;
 }
 
+Rational& Rational::newSqrt() {
+    if (!isNotNegative()) {
+        throw std::runtime_error("Unable to get square root from negative value");
+    }
+    if (numerator_ == 0) {
+        denominator_ = 1;
+        return *this;
+    }
+
+    int newNumerator = numerator_;
+    for (int i = 0; i < 100; ++i) {
+        newNumerator = (newNumerator + numerator_ / newNumerator) / 2;
+    }
+
+    int newDenominator = denominator_;
+    for (int i = 0; i < 100; ++i) {
+        newDenominator = (newDenominator + denominator_ / newDenominator) / 2;
+    }
+
+    numerator_ = newNumerator;
+    denominator_ = newDenominator;
+    reduct();
+    return *this;
+}
+
 bool Rational::isPositive() const {
     return (numerator_ > 0 && denominator_ > 0) || (numerator_ < 0 && denominator_ < 0);
 }
@@ -160,8 +189,11 @@ Rational& Rational::operator=(Rational&& other) noexcept {
 
 
 Rational& Rational::operator+=(const Rational& other) {
-    numerator_ = (numerator_ * other.denominator_) + (other.numerator_ * denominator_);
-    denominator_ *= other.denominator_;
+    int lcm = getLCM(denominator_, other.denominator_);
+    int firstMultiplier = lcm / denominator_;
+    int secondMultiplier = lcm / other.denominator_;
+    numerator_ = (numerator_ * firstMultiplier) + (other.numerator_ * secondMultiplier);
+    denominator_ = lcm;
     reduct();
     return *this;
 }
@@ -172,8 +204,11 @@ Rational Rational::operator+(const Rational& other) const {
 }
 
 Rational& Rational::operator-=(const Rational& other) {
-    numerator_ = (numerator_ * other.denominator_) - (other.numerator_ * denominator_);
-    denominator_ *= other.denominator_; 
+    int lcm = getLCM(denominator_, other.denominator_);
+    int firstMultiplier = lcm / denominator_;
+    int secondMultiplier = lcm / other.denominator_;
+    numerator_ = (numerator_ * firstMultiplier) - (other.numerator_ * secondMultiplier);
+    denominator_ = lcm;
     reduct();
     return *this;
 }
@@ -201,7 +236,6 @@ Rational& Rational::operator/=(const Rational& other) {
     reduct();
     return *this;
 }
-
 
 Rational Rational::operator/(const Rational& other) const {
     Rational copy(*this);

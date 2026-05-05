@@ -35,7 +35,9 @@ void quadraticEquation(
     Rational rootDenom = Rational(2) * a;
     rootDenom.reduct();
 
-    Rational discrSqrt = discr.sqrt(false);
+    Rational discrSqrt = discr.sqrt(true);
+
+    std::cout << "sqrt(D) = " << discrSqrt << "\n";
 
     Rational numeratorRoot1 = (b * Rational(-1)) + discrSqrt;
 

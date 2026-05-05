@@ -11,7 +11,7 @@ TARGET = main
 
 
 # source c++ files
-SOURCES = main.cpp Rational.cpp gcd.cpp quadraticEquation.cpp 
+SOURCES = main.cpp Rational.cpp gcd_lcm.cpp quadraticEquation.cpp
 
 
 # default makefile rule
