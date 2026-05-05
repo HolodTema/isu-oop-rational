@@ -1,6 +1,6 @@
 #include "quadraticEquation.hpp"
-#include <exception>
 #include <iostream>
+#include "exceptions.hpp"
 
 
 void quadraticEquation(
@@ -11,10 +11,8 @@ void quadraticEquation(
     bool debugMode
 ) {
     if (a == Rational(0)) {
-        if (debugMode) {
-            os << "Error: equation is not quadratic, because of coefficient a = 0.\n";
-            return;
-        }
+        os << "Error: equation is not quadratic, because of coefficient a = 0.\n";
+        return;
     }
 
     try {
@@ -40,8 +38,7 @@ void quadraticEquation(
             return;
         }
 
-        Rational rootDenom = Rational(2) * a;
-        rootDenom.reduct();
+        Rational rootDenominator = Rational(2) * a;
 
         Rational discrSqrt = discr.sqrt(true);
 
@@ -54,11 +51,11 @@ void quadraticEquation(
         if (debugMode) {
             std::cout << "-b = " << (b * Rational(-1)) << "\n";
             std::cout << "-b + sqrt(D) = " << numeratorRoot1 << "\n";
-            std::cout << "2*a = " << rootDenom << "\n";
+            std::cout << "2*a = " << rootDenominator << "\n";
         }
 
-        Rational root1 = numeratorRoot1 / rootDenom;
-        Rational root2 = numeratorRoot2 / rootDenom;
+        Rational root1 = numeratorRoot1 / rootDenominator;
+        Rational root2 = numeratorRoot2 / rootDenominator;
 
         os << "Equation has two roots:\n";
         os << "Root1: " << root1 << "\n";
@@ -70,7 +67,6 @@ void quadraticEquation(
     }
     catch (const LongLongOverflowException& e) {
         os << e.what() << "\n";
-        return;
     }
 }
 

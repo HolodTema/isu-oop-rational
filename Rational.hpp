@@ -63,8 +63,6 @@ public:
 
     Rational& pow(int n);
 
-    double getSqrt() const;
-
     Rational& sqrt(bool debugMode);
 
     bool isPositive() const;

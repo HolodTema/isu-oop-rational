@@ -64,30 +64,9 @@ Rational& Rational::pow(int n) {
     return *this;
 }
 
-double Rational::getSqrt() const {
-    double rationalDouble = static_cast<double>(*this);
-
-    if (rationalDouble < 0) {
-        throw std::runtime_error("Unable to get square root from negative value");
-    }
-
-    if (rationalDouble == 0) {
-        return 0;
-    }
-
-    double result = rationalDouble;
-    for (int i = 0; i < 10; ++i) {
-        result = 0.5 * (result + rationalDouble / result);
-    }
-    return result;
-}
-
 Rational& Rational::sqrt(bool debugMode) {
-    constexpr long long SCALE = 10000ll;
-
     if (debugMode) {
         std::cout << "Calculating sqrt() from rational " << *this << "\n";
-        std::cout << "SCALE = " << SCALE << "\n";
     }
 
     if (!isNotNegative()) {
@@ -119,30 +98,22 @@ Rational& Rational::sqrt(bool debugMode) {
 
     long long scale = 1;
     while (true) {
-        if ((std::numeric_limits<long long>::max() / scale < scale) ||
-            (std::numeric_limits<long long>::max() / scale < absDenominator) ||
-            (std::numeric_limits<long long>::max() / (scale * scale) < bigNumerator)) {
-            scale /= 10;
+        if (std::numeric_limits<long long>::max() / 10 < scale) {
+            break;
+        }
+        if (std::numeric_limits<long long>::max() / scale / 10 < scale) {
+            break;
+        }
+        if (std::numeric_limits<long long>::max() / scale / 10 < absDenominator) {
+            break;
+        }
+        if (std::numeric_limits<long long>::max() / (scale * scale) / 100 < bigNumerator) {
             break;
         }
         scale *= 10;
     }
 
     bigNumerator *= (scale * scale);
-
-    // if (std::numeric_limits<long long>::max() / SCALE < SCALE) {
-    //     if (debugMode) {
-    //         std::cout << "SCALE * SCALE affects long long overflow\n";
-    //     }
-    //     throw LongLongOverflowException();
-    // }
-    // if ((std::numeric_limits<long long>::max() / bigNumerator) < (SCALE * SCALE)) {
-    //     if (debugMode) {
-    //         std::cout << "numerator * denominator * SCALE * SCALE affects long long overflow\n";
-    //     }
-    //     throw LongLongOverflowException();
-    // }
-    // bigNumerator *= SCALE * SCALE;
 
     if (debugMode) {
         std::cout << "scale = " << scale << "\n";
@@ -163,15 +134,10 @@ Rational& Rational::sqrt(bool debugMode) {
     }
     long long bigNumeratorSqrt = entryN;
 
-    // if (std::numeric_limits<long long>::max() / absDenominator < SCALE) {
-    //     if (debugMode) {
-    //         std::cout << "denominator * SCALE causes long long overflow\n";
-    //     }
-    //     throw LongLongOverflowException();
-    // }
     numerator_ = bigNumeratorSqrt;
     denominator_ *= scale;
     reduct();
+
     if (debugMode) {
         std::cout << "Result of sqrt():\n";
         std::cout << *this << "\n";
@@ -203,7 +169,6 @@ Rational& Rational::operator=(Rational&& other) noexcept {
     }
     return *this;
 }
-
 
 Rational& Rational::operator+=(const Rational& other) {
     long long lcm = getLCM(denominator_, other.denominator_);
